@@ -6,7 +6,7 @@ import TranscriberUI from './TranscriberUI';
 const App = () => {
   return <>
   <UploadPlaybackTranscriberUI />
-  <TranscriberUI/>
+  {/* <TranscriberUI/> */}
   </>;
 };
 
