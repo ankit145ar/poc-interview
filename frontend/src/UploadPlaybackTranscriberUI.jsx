@@ -2,6 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import RecordRTC from "recordrtc";
 import { StreamingTranscriber } from "assemblyai";
 
+const API_BASE_URL = "https://poc-interview.onrender.com";
+// "http://localhost:3001";
+
 const UploadPlaybackTranscriberUI = () => {
   const [audioFile, setAudioFile] = useState(null);
   const [audioUrl, setAudioUrl] = useState(null);
@@ -52,7 +55,7 @@ const UploadPlaybackTranscriberUI = () => {
     if (!context) return;
 
     try {
-      const response = await fetch("http://localhost:3001/generate-questions", {
+      const response = await fetch(`${API_BASE_URL}/generate-questions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -69,7 +72,7 @@ const UploadPlaybackTranscriberUI = () => {
   };
 
   const initializeTranscriber = async () => {
-    const response = await fetch("http://localhost:3001/token");
+    const response = await fetch(`${API_BASE_URL}/token`);
     const data = await response.json();
     if (!data.token) throw new Error("Token not received");
 
