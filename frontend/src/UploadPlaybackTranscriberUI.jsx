@@ -19,6 +19,8 @@ const UploadPlaybackTranscriberUI = () => {
   const recorderRef = useRef(null);
   const timerRef = useRef(null);
   const transcriptsRef = useRef(transcripts);
+  const transcriptBoxRef = useRef(null);
+  const questionsRef = useRef(null);
   const audioContextRef = useRef(null);
   const sourceNodeRef = useRef(null);
   const audioBufferRef = useRef(null);
@@ -35,6 +37,18 @@ const UploadPlaybackTranscriberUI = () => {
 
     return () => clearInterval(timerRef.current);
   }, [isPlaying]);
+
+  useEffect(() => {
+    if (questionsRef.current) {
+      questionsRef.current.scrollTop = questionsRef.current.scrollHeight;
+    }
+  }, [questions]);
+
+  useEffect(() => {
+    if (transcriptBoxRef.current) {
+      transcriptBoxRef.current.scrollTop = transcriptBoxRef.current.scrollHeight;
+    }
+  }, [transcripts]);
 
   useEffect(() => {
     return () => {
@@ -64,7 +78,10 @@ const UploadPlaybackTranscriberUI = () => {
       });
 
       const data = await response.json();
-      setQuestions(Array.isArray(data.questions) ? data.questions : []);
+      setQuestions((prev) => {
+        const newQuestions = Array.isArray(data.questions) ? data.questions : [];
+        return newQuestions.length ? [...prev, ...newQuestions] : prev;
+      });
     } catch (err) {
       console.error("Question fetch failed:", err);
       setError("Unable to generate questions.");
@@ -175,7 +192,7 @@ const UploadPlaybackTranscriberUI = () => {
       type: "audio",
       mimeType: "audio/webm;codecs=pcm",
       recorderType: RecordRTC.StereoAudioRecorder,
-      timeSlice: 50,
+      timeSlice: 100,
       desiredSampRate: 16000,
       numberOfAudioChannels: 1,
       bufferSize: 4096,
@@ -281,7 +298,7 @@ const UploadPlaybackTranscriberUI = () => {
         if (!transcriberRef.current || !view || !view.length) return;
 
         const maxSamples = 16000;
-        const minSamples = 400;
+        const minSamples = 800; // 50ms at 16kHz
         const pending = audioBufferRef.current;
         const combined = pending ? new Int16Array(pending.length + view.length) : view;
 
@@ -370,7 +387,7 @@ const UploadPlaybackTranscriberUI = () => {
       {error && <div style={styles.error}>{error}</div>}
 
       <div style={{ display: "flex", flex: "1" }}>
-        <div style={styles.transcriptBox}>
+        <div ref={transcriptBoxRef} style={styles.transcriptBox}>
           {transcripts.length > 0 ? (
             transcripts.map((line, index) => (
               <p key={index} style={styles.line}>
@@ -384,7 +401,7 @@ const UploadPlaybackTranscriberUI = () => {
           )}
         </div>
 
-        <div style={styles.questionsBox}>
+        <div ref={questionsRef} style={styles.questionsBox}>
           <h3 style={styles.questionsTitle}>Suggested Questions</h3>
           {questions.length > 0 ? (
             <ul style={styles.questionList}>
@@ -473,18 +490,22 @@ const styles = {
     padding: "20px",
     overflowY: "auto",
     background: "#ffffff",
+    height: "75vh"
   },
   questionsBox: {
     width: "380px",
     padding: "20px",
     borderTop: "1px solid #e2e8f0",
     background: "#f7fafc",
+    height: "100%",
+    overflowY: "auto",
   },
   questionsTitle: {
     margin: 0,
     marginBottom: "12px",
     fontSize: "18px",
     color: "#2d3748",
+    maxHeight: "75vh"
   },
   questionList: {
     listStyleType: "decimal",
