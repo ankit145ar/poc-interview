@@ -499,6 +499,7 @@ const styles = {
     background: "#f7fafc",
     height: "100%",
     overflowY: "auto",
+      maxHeight: "75vh"
   },
   questionsTitle: {
     margin: 0,
